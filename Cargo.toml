@@ -1,0 +1,9 @@
+[package]
+name = "nu_plugin_id3"
+version = "0.1.0"
+authors = ["notryanb@gmail.com <notryanb@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+id3 = "0.4"
+nu = "~0"
