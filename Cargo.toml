@@ -6,4 +6,7 @@ edition = "2018"
 
 [dependencies]
 id3 = "0.4"
-nu = "~0"
+nu-plugin = "0.9"
+nu-protocol = "0.9"
+nu-source = "0.9"
+nu-errors = "0.9"
