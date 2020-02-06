@@ -16,25 +16,90 @@ impl Id3 {
     fn idthree(&mut self, value: Value) -> Result<Value, ShellError> {
         match &value.value {
             UntaggedValue::Primitive(Primitive::String(s)) => {
-                let tag = Id3Tag::read_from_path(s).expect("Couldn't read file");
-                let mut dict = TaggedDictBuilder::with_capacity(&value.tag, 3);
+                let tag = Id3Tag::read_from_path(s);
 
-                dict.insert_untagged(
-                    "artist",
-                    UntaggedValue::string(tag.artist().unwrap_or("failed artist").to_string())
-                );
+                match tag {
+                    Ok(tag) => {
+                        let mut dict = TaggedDictBuilder::with_capacity(&value.tag, 8);
+        
+                        dict.insert_untagged(
+                            "title",
+                            UntaggedValue::string(tag.title().unwrap_or("failed").to_string())
+                        );
+                        
+                        dict.insert_untagged(
+                            "album",
+                            UntaggedValue::string(tag.album().unwrap_or("failed").to_string())
+                        );
+                        
+                        dict.insert_untagged(
+                            "artist",
+                            UntaggedValue::string(tag.artist().unwrap_or("failed").to_string())
+                        );
+        
+                        dict.insert_untagged(
+                            "year",
+                            UntaggedValue::string(tag.year().unwrap_or(0).to_string())
+                        );
+        
+                        dict.insert_untagged(
+                            "track number",
+                            UntaggedValue::string(tag.track().unwrap_or(0).to_string())
+                        );
+        
+                        dict.insert_untagged(
+                            "duration",
+                            UntaggedValue::string(tag.duration().unwrap_or(0).to_string())
+                        );
+        
+                        dict.insert_untagged(
+                            "genre",
+                            UntaggedValue::string(tag.genre().unwrap_or("failed").to_string())
+                        );
+        
+                        dict.insert_untagged(
+                            "disc",
+                            UntaggedValue::string(tag.disc().unwrap_or(0).to_string())
+                        );
+        
+                        // dict.insert_untagged(
+                        //     "date released",
+                        //     UntaggedValue::string(tag.date_released().unwrap_or("failed").to_string())
+                        // );
+        
+                        // dict.insert_untagged(
+                        //     "date recorded",
+                        //     UntaggedValue::string(tag.date_recorded().unwrap_or("failed").to_string())
+                        // );
+        
+                        Ok(dict.into_value())
 
-                dict.insert_untagged(
-                    "album",
-                    UntaggedValue::string(tag.album().unwrap_or("failed album").to_string())
-                );
+                    }
+                    Err(e) => {
+                        let mut dict = TaggedDictBuilder::with_capacity(&value.tag, 8);
 
-                dict.insert_untagged(
-                    "title",
-                    UntaggedValue::string(tag.title().unwrap_or("failed title").to_string())
-                );
+                        let columns = vec![
+                            "title",
+                            "album",
+                            "artist",
+                            "year",
+                            "track number",
+                            "duration",
+                            "genre",
+                            "disc",
+                        ];
 
-                Ok(dict.into_value())
+                        for col in columns {
+                            dict.insert_untagged(
+                                col,
+                                UntaggedValue::string("-")
+                            );
+                        }
+
+                        Ok(dict.into_value())
+                    }
+                }
+                
             }
             _ => Err(ShellError::labeled_error(
                 "Unrecognized type in stream",
