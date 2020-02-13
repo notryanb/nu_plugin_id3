@@ -50,9 +50,10 @@ impl Id3 {
                 match tag {
                     Ok(tag) => {
                         let mut dict = TaggedDictBuilder::with_capacity(&value.tag, 8);
+                        let pictures = tag.pictures();
+
                         let mut pictures_dict = TaggedDictBuilder::new(&value.tag);
 
-                        let pictures = tag.pictures();
                         for pic in pictures {
                             pictures_dict.insert_untagged(
                                 "mime type",
@@ -102,22 +103,27 @@ impl Id3 {
         
                         dict.insert_untagged(
                             "track number",
-                            UntaggedValue::string(tag.track().unwrap_or(0).to_string())
+                            UntaggedValue::int(tag.track().unwrap_or(0))
                         );
         
                         dict.insert_untagged(
                             "duration",
-                            UntaggedValue::string(tag.duration().unwrap_or(0).to_string())
+                            UntaggedValue::duration(
+                                match tag.duration() {
+                                    Some(duration) => duration as u64,
+                                    None => 0
+                                }
+                            )
                         );
         
                         dict.insert_untagged(
                             "genre",
-                            UntaggedValue::string(tag.genre().unwrap_or("failed").to_string())
+                            UntaggedValue::string(tag.genre().unwrap_or("").to_string())
                         );
         
                         dict.insert_untagged(
                             "disc",
-                            UntaggedValue::string(tag.disc().unwrap_or(0).to_string())
+                            UntaggedValue::int(tag.disc().unwrap_or(0))
                         );
         
                         // dict.insert_untagged(
@@ -137,6 +143,7 @@ impl Id3 {
                         let mut dict = TaggedDictBuilder::with_capacity(&value.tag, 8);
 
                         let columns = vec![
+                            "pictures",
                             "title",
                             "album",
                             "artist",
@@ -150,7 +157,7 @@ impl Id3 {
                         for col in columns {
                             dict.insert_untagged(
                                 col,
-                                UntaggedValue::string("-")
+                                UntaggedValue::nothing()
                             );
                         }
 
