@@ -1,3 +1,5 @@
+mod parse;
+
 use nu_errors::ShellError;
 use nu_plugin::{serve_plugin, Plugin};
 use nu_protocol::{
@@ -5,6 +7,8 @@ use nu_protocol::{
 };
 
 use id3::Tag as Id3Tag;
+use parse::Id3Tag as MyTag;
+
 
 struct Id3;
 
@@ -49,91 +53,102 @@ impl Id3 {
 
                 match tag {
                     Ok(tag) => {
+                        let my_tag = MyTag::from(tag);
+
                         let mut dict = TaggedDictBuilder::with_capacity(&value.tag, 8);
-                        let pictures = tag.pictures();
+                        // let pictures = tag.pictures();
 
-                        let mut pictures_dict = TaggedDictBuilder::new(&value.tag);
+                        // let mut pictures_dict = TaggedDictBuilder::new(&value.tag);
 
-                        for pic in pictures {
-                            pictures_dict.insert_untagged(
-                                "mime type",
-                                UntaggedValue::string(&pic.mime_type)
-                            );
+                        // for pic in pictures {
+                        //     pictures_dict.insert_untagged(
+                        //         "mime type",
+                        //         UntaggedValue::string(&pic.mime_type)
+                        //     );
 
-                            pictures_dict.insert_untagged(
-                                "picture type",
-                                UntaggedValue::string(picture_type_to_string(pic.picture_type))
-                            );
+                        //     pictures_dict.insert_untagged(
+                        //         "picture type",
+                        //         UntaggedValue::string(picture_type_to_string(pic.picture_type))
+                        //     );
 
-                            pictures_dict.insert_untagged(
-                                "description",
-                                UntaggedValue::string(&pic.description)
-                            );
+                        //     pictures_dict.insert_untagged(
+                        //         "description",
+                        //         UntaggedValue::string(&pic.description)
+                        //     );
 
-                            pictures_dict.insert_untagged(
-                                "data",
-                                UntaggedValue::binary(pic.data.clone())
-                            );
-                        }
+                        //     pictures_dict.insert_untagged(
+                        //         "data",
+                        //         UntaggedValue::binary(pic.data.clone())
+                        //     );
+                        // }
 
-                        dict.insert_value(
-                            "pictures",
-                            pictures_dict.into_value()
-                        );
+                        // dict.insert_value(
+                        //     "pictures",
+                        //     pictures_dict.into_value()
+                        // );
         
                         dict.insert_untagged(
                             "title",
-                            UntaggedValue::string(tag.title().unwrap_or("failed").to_string())
+                            UntaggedValue::string(my_tag.title.unwrap_or(String::new()))
                         );
                         
                         dict.insert_untagged(
                             "album",
-                            UntaggedValue::string(tag.album().unwrap_or("failed").to_string())
+                            UntaggedValue::string(my_tag.album.unwrap_or(String::new()))
                         );
                         
                         dict.insert_untagged(
                             "artist",
-                            UntaggedValue::string(tag.artist().unwrap_or("failed").to_string())
+                            UntaggedValue::string(my_tag.artist.unwrap_or(String::new()))
                         );
         
                         dict.insert_untagged(
                             "year",
-                            UntaggedValue::string(tag.year().unwrap_or(0).to_string())
+                            UntaggedValue::int(my_tag.year.unwrap_or(0))
                         );
         
                         dict.insert_untagged(
                             "track number",
-                            UntaggedValue::int(tag.track().unwrap_or(0))
+                            UntaggedValue::int(my_tag.track_number.unwrap_or(0))
                         );
         
                         dict.insert_untagged(
                             "duration",
-                            UntaggedValue::duration(
-                                match tag.duration() {
-                                    Some(duration) => duration as u64,
-                                    None => 0
-                                }
-                            )
+                            UntaggedValue::duration(my_tag.duration.unwrap_or(0))
                         );
-        
+
                         dict.insert_untagged(
                             "genre",
-                            UntaggedValue::string(tag.genre().unwrap_or("").to_string())
+                            UntaggedValue::string(my_tag.genre.unwrap_or(String::new()))
                         );
         
                         dict.insert_untagged(
                             "disc",
-                            UntaggedValue::int(tag.disc().unwrap_or(0))
+                            UntaggedValue::int(my_tag.disc.unwrap_or(0))
                         );
         
                         // dict.insert_untagged(
                         //     "date released",
-                        //     UntaggedValue::string(tag.date_released().unwrap_or("failed").to_string())
+                        //     UntaggedValue::string(tag.date_released().unwrap_or(id3::Timestamp {
+                        //         year: 0,
+                        //         month: None,
+                        //         day: None,
+                        //         hour: None,
+                        //         minute: None,
+                        //         second: None,
+                        //     }).to_string())
                         // );
         
                         // dict.insert_untagged(
                         //     "date recorded",
-                        //     UntaggedValue::string(tag.date_recorded().unwrap_or("failed").to_string())
+                        //     UntaggedValue::string(tag.date_recorded().unwrap_or(id3::Timestamp {
+                        //         year: 0,
+                        //         month: None,
+                        //         day: None,
+                        //         hour: None,
+                        //         minute: None,
+                        //         second: None,
+                        //     }).to_string())
                         // );
         
                         Ok(dict.into_value())
