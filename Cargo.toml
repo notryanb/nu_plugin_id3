@@ -3,6 +3,11 @@ name = "nu_plugin_id3"
 version = "0.1.0"
 authors = ["notryanb@gmail.com <notryanb@gmail.com>"]
 edition = "2018"
+description = "An id3 reading plugin for Nushell"
+license = "MIT"
+
+[lib]
+doctest = false
 
 [dependencies]
 id3 = "0.5"
