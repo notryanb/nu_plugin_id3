@@ -1,7 +1,11 @@
-// use serde::{Deserialize, Serialize};
-// use serde_json::Result;
+use nu_protocol::{
+    TaggedDictBuilder, UntaggedValue, Value,
+};
 
-#[derive(Serialize)]
+use nu_source::{Tag};
+
+
+#[derive(Default)]
 pub struct Id3Tag {
     // version: Id3Version,
     pub title: Option<String>,
@@ -69,6 +73,109 @@ impl From<id3::Tag> for Id3Tag {
             // date_recorded: source_tag.date_recorded(),
             // date_released: source_tag.date_released(),
         }
+    }
+}
+
+impl Id3Tag {
+    pub fn into_value(self, tag: impl Into<Tag>) -> Value {
+        let mut dict = TaggedDictBuilder::new(tag);
+        // let pictures = tag.pictures();
+
+        // let mut pictures_dict = TaggedDictBuilder::new(&value.tag);
+
+        // for pic in pictures {
+        //     pictures_dict.insert_untagged(
+        //         "mime type",
+        //         UntaggedValue::string(&pic.mime_type)
+        //     );
+
+        //     pictures_dict.insert_untagged(
+        //         "picture type",
+        //         UntaggedValue::string(picture_type_to_string(pic.picture_type))
+        //     );
+
+        //     pictures_dict.insert_untagged(
+        //         "description",
+        //         UntaggedValue::string(&pic.description)
+        //     );
+
+        //     pictures_dict.insert_untagged(
+        //         "data",
+        //         UntaggedValue::binary(pic.data.clone())
+        //     );
+        // }
+
+        // dict.insert_value(
+        //     "pictures",
+        //     pictures_dict.into_value()
+        // );
+
+        
+        // dict.insert_untagged(
+        //     "date released",
+        //     UntaggedValue::string(tag.date_released().unwrap_or(id3::Timestamp {
+        //         year: 0,
+        //         month: None,
+        //         day: None,
+        //         hour: None,
+        //         minute: None,
+        //         second: None,
+        //     }).to_string())
+        // );
+
+        // dict.insert_untagged(
+        //     "date recorded",
+        //     UntaggedValue::string(tag.date_recorded().unwrap_or(id3::Timestamp {
+        //         year: 0,
+        //         month: None,
+        //         day: None,
+        //         hour: None,
+        //         minute: None,
+        //         second: None,
+        //     }).to_string())
+        // );
+
+        dict.insert_untagged(
+            "title",
+            UntaggedValue::string(self.title.unwrap_or(String::new()))
+        );
+        
+        dict.insert_untagged(
+            "album",
+            UntaggedValue::string(self.album.unwrap_or(String::new()))
+        );
+        
+        dict.insert_untagged(
+            "artist",
+            UntaggedValue::string(self.artist.unwrap_or(String::new()))
+        );
+
+        dict.insert_untagged(
+            "year",
+            UntaggedValue::int(self.year.unwrap_or(0))
+        );
+
+        dict.insert_untagged(
+            "track number",
+            UntaggedValue::int(self.track_number.unwrap_or(0))
+        );
+
+        dict.insert_untagged(
+            "duration",
+            UntaggedValue::duration(self.duration.unwrap_or(0))
+        );
+
+        dict.insert_untagged(
+            "genre",
+            UntaggedValue::string(self.genre.unwrap_or(String::new()))
+        );
+
+        dict.insert_untagged(
+            "disc",
+            UntaggedValue::int(self.disc.unwrap_or(0))
+        );
+
+        dict.into_value()
     }
 }
 
