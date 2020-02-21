@@ -2,9 +2,6 @@ use nu_protocol::{
     TaggedDictBuilder, UntaggedValue, Value,
 };
 
-use nu_source::{Tag};
-
-
 #[derive(Default)]
 pub struct Id3Tag {
     // version: Id3Version,
@@ -16,7 +13,7 @@ pub struct Id3Tag {
     pub duration: Option<u64>,
     pub genre: Option<String>,
     pub disc: Option<u32>,
-    // pub pictures: Vec<Picture>,
+    pub pictures: Vec<Picture>,
     // date_recorded: Option<Id3TimeStamp>,
     // date_released: Option<Id3TimeStamp>,
 }
@@ -69,113 +66,155 @@ impl From<id3::Tag> for Id3Tag {
             duration: source_tag.duration().map(|d| d as u64),
             genre: source_tag.genre().map(|s| s.to_string()),
             disc: source_tag.disc(),
-            // pictures: source_tag.pictures().map::<id3::frame::Picture, Picture>(|p| Picture::from(p.into())).collect::<Vec<Picture>>(),
+            pictures: source_tag
+                .pictures()
+                .map::<id3::frame::Picture, Picture>(|p| Picture::from(p.into())).collect::<Vec<Picture>>(),
             // date_recorded: source_tag.date_recorded(),
             // date_released: source_tag.date_released(),
         }
     }
 }
 
-impl Id3Tag {
-    pub fn into_value(self, tag: impl Into<Tag>) -> Value {
-        let mut dict = TaggedDictBuilder::new(tag);
-        // let pictures = tag.pictures();
+pub fn parse_id3_tag(value: Value) -> Result<Value, ShellError> {
+    match &value.value {
+        UntaggedValue::Primitive(Primitive::String(s)) => {
+            let tag = Id3Tag::read_from_path(s);
 
-        // let mut pictures_dict = TaggedDictBuilder::new(&value.tag);
+            match tag {
+                Ok(tag) =>  {                            
+                    let mut dict = TaggedDictBuilder::new(tag);
+                    
 
-        // for pic in pictures {
-        //     pictures_dict.insert_untagged(
-        //         "mime type",
-        //         UntaggedValue::string(&pic.mime_type)
-        //     );
+                    
+                    // dict.insert_untagged(
+                    //     "date released",
+                    //     UntaggedValue::string(tag.date_released().unwrap_or(id3::Timestamp {
+                    //         year: 0,
+                    //         month: None,
+                    //         day: None,
+                    //         hour: None,
+                    //         minute: None,
+                    //         second: None,
+                    //     }).to_string())
+                    // );
 
-        //     pictures_dict.insert_untagged(
-        //         "picture type",
-        //         UntaggedValue::string(picture_type_to_string(pic.picture_type))
-        //     );
+                    // dict.insert_untagged(
+                    //     "date recorded",
+                    //     UntaggedValue::string(tag.date_recorded().unwrap_or(id3::Timestamp {
+                    //         year: 0,
+                    //         month: None,
+                    //         day: None,
+                    //         hour: None,
+                    //         minute: None,
+                    //         second: None,
+                    //     }).to_string())
+                    // );
 
-        //     pictures_dict.insert_untagged(
-        //         "description",
-        //         UntaggedValue::string(&pic.description)
-        //     );
+                    dict.insert_untagged(
+                        "title",
+                        UntaggedValue::string(tag.title.unwrap_or(String::new()))
+                    );
+                    
+                    dict.insert_untagged(
+                        "album",
+                        UntaggedValue::string(tag.album.unwrap_or(String::new()))
+                    );
+                    
+                    dict.insert_untagged(
+                        "artist",
+                        UntaggedValue::string(tag.artist.unwrap_or(String::new()))
+                    );
 
-        //     pictures_dict.insert_untagged(
-        //         "data",
-        //         UntaggedValue::binary(pic.data.clone())
-        //     );
-        // }
+                    dict.insert_untagged(
+                        "year",
+                        UntaggedValue::int(tag.year.unwrap_or(0))
+                    );
 
-        // dict.insert_value(
-        //     "pictures",
-        //     pictures_dict.into_value()
-        // );
+                    dict.insert_untagged(
+                        "track number",
+                        UntaggedValue::int(tag.track_number.unwrap_or(0))
+                    );
 
-        
-        // dict.insert_untagged(
-        //     "date released",
-        //     UntaggedValue::string(tag.date_released().unwrap_or(id3::Timestamp {
-        //         year: 0,
-        //         month: None,
-        //         day: None,
-        //         hour: None,
-        //         minute: None,
-        //         second: None,
-        //     }).to_string())
-        // );
+                    dict.insert_untagged(
+                        "duration",
+                        UntaggedValue::duration(tag.duration.unwrap_or(0))
+                    );
 
-        // dict.insert_untagged(
-        //     "date recorded",
-        //     UntaggedValue::string(tag.date_recorded().unwrap_or(id3::Timestamp {
-        //         year: 0,
-        //         month: None,
-        //         day: None,
-        //         hour: None,
-        //         minute: None,
-        //         second: None,
-        //     }).to_string())
-        // );
+                    dict.insert_untagged(
+                        "genre",
+                        UntaggedValue::string(tag.genre.unwrap_or(String::new()))
+                    );
 
-        dict.insert_untagged(
-            "title",
-            UntaggedValue::string(self.title.unwrap_or(String::new()))
-        );
-        
-        dict.insert_untagged(
-            "album",
-            UntaggedValue::string(self.album.unwrap_or(String::new()))
-        );
-        
-        dict.insert_untagged(
-            "artist",
-            UntaggedValue::string(self.artist.unwrap_or(String::new()))
-        );
+                    dict.insert_untagged(
+                        "disc",
+                        UntaggedValue::int(tag.disc.unwrap_or(0))
+                    );
 
-        dict.insert_untagged(
-            "year",
-            UntaggedValue::int(self.year.unwrap_or(0))
-        );
 
-        dict.insert_untagged(
-            "track number",
-            UntaggedValue::int(self.track_number.unwrap_or(0))
-        );
+                    let pictures = tag.pictures();
+                    let mut pictures_dict = TaggedDictBuilder::new(&value.tag);
 
-        dict.insert_untagged(
-            "duration",
-            UntaggedValue::duration(self.duration.unwrap_or(0))
-        );
+                    for pic in pictures {
+                        pictures_dict.insert_untagged(
+                            "mime type",
+                            UntaggedValue::string(&pic.mime_type)
+                        );
 
-        dict.insert_untagged(
-            "genre",
-            UntaggedValue::string(self.genre.unwrap_or(String::new()))
-        );
+                        pictures_dict.insert_untagged(
+                            "picture type",
+                            UntaggedValue::string(picture_type_to_string(pic.picture_type))
+                        );
 
-        dict.insert_untagged(
-            "disc",
-            UntaggedValue::int(self.disc.unwrap_or(0))
-        );
+                        pictures_dict.insert_untagged(
+                            "description",
+                            UntaggedValue::string(&pic.description)
+                        );
 
-        dict.into_value()
+                        pictures_dict.insert_untagged(
+                            "data",
+                            UntaggedValue::binary(pic.data.clone())
+                        );
+                    }
+
+                    dict.insert_value(
+                        "pictures",
+                        pictures_dict.into_value()
+                    );
+
+                    dict.into_value()
+                },
+                Err(_err) => {
+                    let mut dict = TaggedDictBuilder::with_capacity(&value.tag, 8);
+
+                    let columns = vec![
+                        "title",
+                        "album",
+                        "artist",
+                        "year",
+                        "track number",
+                        "duration",
+                        "genre",
+                        "disc",
+                        "pictures",
+                    ];
+
+                    for col in columns {
+                        dict.insert_untagged(
+                            col,
+                            UntaggedValue::nothing()
+                        );
+                    }
+
+                    Ok(dict.into_value())
+                }
+            }
+            
+        }
+        _ => Err(ShellError::labeled_error(
+            "Unrecognized type in stream",
+            "'id3' given non-string by this",
+            value.tag.span,
+        )),
     }
 }
 
