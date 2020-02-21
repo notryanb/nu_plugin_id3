@@ -3,11 +3,10 @@ mod parse;
 use nu_errors::ShellError;
 use nu_plugin::{serve_plugin, Plugin};
 use nu_protocol::{
-    CallInfo, Primitive, ReturnSuccess, ReturnValue, Signature, TaggedDictBuilder, UntaggedValue, Value,
+    CallInfo,  ReturnSuccess, ReturnValue, Signature,  Value,
 };
 
-use id3::Tag as Id3Tag;
-use parse::Id3Tag as MyTag;
+use parse::parse_id3_tag;
 
 struct Id3;
 
@@ -17,7 +16,7 @@ impl Id3 {
     }
 
     fn id3(&mut self, value: Value) -> Result<Value, ShellError> {
-        let row = parse_id3_tag(&value);
+        parse_id3_tag(value)
     }
 }
 

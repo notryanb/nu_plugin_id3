@@ -1,22 +1,26 @@
+
+use id3::Tag as Id3Tag;
+
+use nu_errors::ShellError;
 use nu_protocol::{
-    TaggedDictBuilder, UntaggedValue, Value,
+    Primitive, TaggedDictBuilder, UntaggedValue, Value,
 };
 
-#[derive(Default)]
-pub struct Id3Tag {
-    // version: Id3Version,
-    pub title: Option<String>,
-    pub album: Option<String>,
-    pub artist: Option<String>,
-    pub year: Option<i32>,
-    pub track_number: Option<u32>,
-    pub duration: Option<u64>,
-    pub genre: Option<String>,
-    pub disc: Option<u32>,
-    pub pictures: Vec<Picture>,
-    // date_recorded: Option<Id3TimeStamp>,
-    // date_released: Option<Id3TimeStamp>,
-}
+
+// pub struct Id3Tag {
+//     version: Id3Version,
+//     pub title: Option<String>,
+//     pub album: Option<String>,
+//     pub artist: Option<String>,
+//     pub year: Option<i32>,
+//     pub track_number: Option<u32>,
+//     pub duration: Option<u64>,
+//     pub genre: Option<String>,
+//     pub disc: Option<u32>,
+//     pub pictures: Vec<Picture>,
+//     date_recorded: Option<Id3TimeStamp>,
+//     date_released: Option<Id3TimeStamp>,
+// }
 
 // pub enum Id3Version {
 //     Id3v1,
@@ -54,26 +58,26 @@ pub struct Id3Tag {
     // }
 // }
 
-impl From<id3::Tag> for Id3Tag {  
-    fn from(source_tag: id3::Tag) -> Self {    
-        Id3Tag {
-            // version,
-            title: source_tag.title().map(|s| s.to_string()),
-            album: source_tag.album().map(|s| s.to_string()),
-            artist: source_tag.artist().map(|s| s.to_string()),
-            year: source_tag.year(),
-            track_number: source_tag.track(),
-            duration: source_tag.duration().map(|d| d as u64),
-            genre: source_tag.genre().map(|s| s.to_string()),
-            disc: source_tag.disc(),
-            pictures: source_tag
-                .pictures()
-                .map::<id3::frame::Picture, Picture>(|p| Picture::from(p.into())).collect::<Vec<Picture>>(),
-            // date_recorded: source_tag.date_recorded(),
-            // date_released: source_tag.date_released(),
-        }
-    }
-}
+// impl From<id3::Tag> for Id3Tag {  
+//     fn from(source_tag: id3::Tag) -> Self {    
+//         Id3Tag {
+//             // version,
+//             title: source_tag.title().map(|s| s.to_string()),
+//             album: source_tag.album().map(|s| s.to_string()),
+//             artist: source_tag.artist().map(|s| s.to_string()),
+//             year: source_tag.year(),
+//             track_number: source_tag.track(),
+//             duration: source_tag.duration().map(|d| d as u64),
+//             genre: source_tag.genre().map(|s| s.to_string()),
+//             disc: source_tag.disc(),
+//             pictures: source_tag
+//                 .pictures()
+//                 .map::<id3::frame::Picture, Picture>(|p| Picture::from(p.into())).collect::<Vec<Picture>>(),
+//             // date_recorded: source_tag.date_recorded(),
+//             // date_released: source_tag.date_released(),
+//         }
+//     }
+// }
 
 pub fn parse_id3_tag(value: Value) -> Result<Value, ShellError> {
     match &value.value {
@@ -82,7 +86,7 @@ pub fn parse_id3_tag(value: Value) -> Result<Value, ShellError> {
 
             match tag {
                 Ok(tag) =>  {                            
-                    let mut dict = TaggedDictBuilder::new(tag);
+                    let mut dict = TaggedDictBuilder::new(&value.tag);
                     
 
                     
@@ -112,42 +116,42 @@ pub fn parse_id3_tag(value: Value) -> Result<Value, ShellError> {
 
                     dict.insert_untagged(
                         "title",
-                        UntaggedValue::string(tag.title.unwrap_or(String::new()))
+                        UntaggedValue::string(tag.title().unwrap_or(""))
                     );
                     
                     dict.insert_untagged(
                         "album",
-                        UntaggedValue::string(tag.album.unwrap_or(String::new()))
+                        UntaggedValue::string(tag.album().unwrap_or(""))
                     );
                     
                     dict.insert_untagged(
                         "artist",
-                        UntaggedValue::string(tag.artist.unwrap_or(String::new()))
+                        UntaggedValue::string(tag.artist().unwrap_or(""))
                     );
 
                     dict.insert_untagged(
                         "year",
-                        UntaggedValue::int(tag.year.unwrap_or(0))
+                        UntaggedValue::int(tag.year().unwrap_or(0))
                     );
 
                     dict.insert_untagged(
                         "track number",
-                        UntaggedValue::int(tag.track_number.unwrap_or(0))
+                        UntaggedValue::int(tag.track().unwrap_or(0))
                     );
 
                     dict.insert_untagged(
                         "duration",
-                        UntaggedValue::duration(tag.duration.unwrap_or(0))
+                        UntaggedValue::duration(tag.duration().map(|d| d as u64).unwrap_or(0))
                     );
 
                     dict.insert_untagged(
                         "genre",
-                        UntaggedValue::string(tag.genre.unwrap_or(String::new()))
+                        UntaggedValue::string(tag.genre().unwrap_or(""))
                     );
 
                     dict.insert_untagged(
                         "disc",
-                        UntaggedValue::int(tag.disc.unwrap_or(0))
+                        UntaggedValue::int(tag.disc().unwrap_or(0))
                     );
 
 
@@ -181,7 +185,7 @@ pub fn parse_id3_tag(value: Value) -> Result<Value, ShellError> {
                         pictures_dict.into_value()
                     );
 
-                    dict.into_value()
+                    Ok(dict.into_value())
                 },
                 Err(_err) => {
                     let mut dict = TaggedDictBuilder::with_capacity(&value.tag, 8);
@@ -219,23 +223,23 @@ pub fn parse_id3_tag(value: Value) -> Result<Value, ShellError> {
 }
 
 
-pub struct Picture {
-    pub mime_type: String,
-    pub picture_type: String,
-    pub description: String,
-    pub data: Vec<u8>,
-}
+// pub struct Picture {
+//     pub mime_type: String,
+//     pub picture_type: String,
+//     pub description: String,
+//     pub data: Vec<u8>,
+// }
 
-impl From<id3::frame::Picture> for Picture {  
-    fn from(source_picture: id3::frame::Picture) -> Self {    
-        Picture {
-            mime_type: source_picture.mime_type,
-            picture_type: picture_type_to_string(source_picture.picture_type),
-            description: source_picture.description,
-            data: source_picture.data,
-        }
-    }
-}
+// impl From<id3::frame::Picture> for Picture {  
+//     fn from(source_picture: id3::frame::Picture) -> Self {    
+//         Picture {
+//             mime_type: source_picture.mime_type,
+//             picture_type: picture_type_to_string(source_picture.picture_type),
+//             description: source_picture.description,
+//             data: source_picture.data,
+//         }
+//     }
+// }
 
 fn picture_type_to_string(picture_type: id3::frame::PictureType) -> String {
     let pic_type_str = match picture_type {
