@@ -1,12 +1,12 @@
 [package]
-name = "nu_plugin_idthree"
+name = "nu_plugin_id3"
 version = "0.1.0"
 authors = ["notryanb@gmail.com <notryanb@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-id3 = "0.4"
-nu-plugin = "0.9"
-nu-protocol = "0.9"
-nu-source = "0.9"
-nu-errors = "0.9"
+id3 = "0.5"
+nu-plugin = "0.10.0"
+nu-protocol = "0.10.0"
+nu-source = "0.10.0"
+nu-errors = "0.10.0"
