@@ -6,9 +6,6 @@ edition = "2018"
 description = "An id3 reading plugin for Nushell"
 license = "MIT"
 
-[lib]
-doctest = false
-
 [dependencies]
 id3 = "0.5"
 nu-plugin = "0.10.0"
