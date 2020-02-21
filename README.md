@@ -17,6 +17,8 @@ This project is still lacking many features
 
 ## Installation
 
+This project depends on a minimum of [nushell](https://www.nushell.sh) `0.10.0` to be installed as that is when support for plugin names containing numbers started.
+
 ### Cargo
 `cargo install nu_plugin_id3`
 
@@ -25,7 +27,7 @@ This project is still lacking many features
 - `cargo install --path .`
 - You may need to restart nushell for it to recognize this plugin.
 
-# Usage
+## Usage
 
 Nagivate to a directory that contains files with _id3_ tags.
 The `id3` plugin expects a file path to parse from.
