@@ -4,7 +4,7 @@ The `id3` is a plugin for [nushell](https://www.nushell.sh) that helps you read 
 This is project is experimental and still under development.
 The public API for the user (flags, command input, etc...) may change while [nushell](https://www.nushell.sh) is still pre `1.0`.
 
-![Example of id3](images/nushell-01.gif "Example of id3")
+![Example of id3](images/nushell.gif "Example of id3")
 
 This project is still lacking many features
 - Ability to parse Id3V1 tags
