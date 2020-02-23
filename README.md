@@ -13,7 +13,7 @@ This project is still lacking many features
 - Missing several Id3V2 fields such as comments, data recorded, etc...
 - Ability to write to the tag (mutate artist, album, comments, lyrics, etc...)
 - Ability to convert from older Id3V1 to Id3V2.X
-- A better demo gif :)
+- Run `id3` command without `ls | get name` - check current directory or specify a directory in addition to `ls` support.
 
 ## Installation
 
