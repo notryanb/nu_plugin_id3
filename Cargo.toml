@@ -5,6 +5,10 @@ authors = ["notryanb@gmail.com <notryanb@gmail.com>"]
 edition = "2018"
 description = "An id3 reading plugin for Nushell"
 license = "MIT"
+readme = "README.md"
+repository = "https://github.com/notryanb/nu_plugin_id3"
+documentation = "https://github.com/notryanb/nu_plugin_id3"
+exclude = ["images"]
 
 [dependencies]
 id3 = "0.5"
