@@ -42,7 +42,7 @@ pub fn parse_id3_tag(value: Value) -> Result<Value, ShellError> {
 
                     dict.insert_untagged(
                         "duration",
-                        tag.duration().map_or_else(|| UntaggedValue::nothing(), |duration| UntaggedValue::duration(duration as u64))
+                        tag.duration().map_or_else(|| UntaggedValue::nothing(), |duration| UntaggedValue::duration(duration as i64))
                     );
 
                     dict.insert_untagged(
