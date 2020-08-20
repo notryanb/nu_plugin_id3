@@ -21,39 +21,35 @@ impl Id3 {
         }
     }
 
+    fn get_path_to_search<'a>(&self, call_info: &'a CallInfo) -> Value {
+        if let Some(path) = call_info.args.nth(0) {
+            path.to_owned()
+        } else {
+            Value::from(".")
+        }
+    }
+
     fn id3(&self, value: Value) -> Result<Value, ShellError> {
         parse_id3_tag(value)
     }
 
     fn parse_filenames(&mut self, call_info: &CallInfo) -> Result<(), ShellError> {
-        let candidates = match &call_info.args.positional {
-            Some(values) => {
-                let mut result = vec![];
+        let path = self.get_path_to_search(call_info);
 
-                for value in values.iter() {
-                    let res = self.glob_to_values(value)?;
-                    result.extend(res);
-                }
+        let mut results = vec![];
 
-                if result.is_empty() {
-                    return Err(ShellError::labeled_error(
-                        "No filename(s) given",
-                        "no filename(s) given",
-                        self.tag.span,
-                    ));
-                }
-                result
-            }
-            None => {
-                return Err(ShellError::labeled_error(
-                    "No filename(s) given",
-                    "no filename(s) given",
-                    self.tag.span,
-                ))
-            }
-        };
+        let res = self.glob_to_values(&path)?;
+        results.extend(res);
 
-        for candidate in candidates {
+        if results.is_empty() {
+            return Err(ShellError::labeled_error(
+                "No filename(s) given",
+                "no filename(s) given",
+                self.tag.span,
+            ));
+        }
+
+        for candidate in results {
             self.add_filename(candidate)?;
         }
 
