@@ -63,9 +63,16 @@ impl Id3 {
     fn glob_to_values(&self, value: &Value) -> Result<Vec<Tagged<String>>, ShellError> {
         let mut result = vec![];
 
-        for entry in walkdir::WalkDir::new(&value.as_string()?).into_iter().filter_map(|e| e.ok()) {
+        for entry in walkdir::WalkDir::new(&value.as_string()?)
+            .into_iter()
+            .filter_map(|e| e.ok())
+        {
             if entry.path().is_file() {
-                let tagged_path = entry.path().to_string_lossy().to_string().tagged(value.tag.clone());
+                let tagged_path = entry
+                    .path()
+                    .to_string_lossy()
+                    .to_string()
+                    .tagged(value.tag.clone());
                 result.push(tagged_path);
             }
         }
@@ -110,11 +117,10 @@ impl Plugin for Id3 {
         let mut return_successes = vec![];
 
         for filename in &self.filenames {
-            
             let rs = ReturnSuccess::value(filename.item().clone());
             let inner_value = rs.unwrap().raw_value();
 
-            if  let Some(some_filename) = inner_value {
+            if let Some(some_filename) = inner_value {
                 let id3 = self.id3(some_filename)?;
                 let value = ReturnSuccess::value(id3);
                 return_successes.push(value);
