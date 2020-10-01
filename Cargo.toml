@@ -13,8 +13,8 @@ exclude = ["images"]
 [dependencies]
 walkdir = "2"
 id3 = "0.5"
-nu-plugin = "0.18.0"
-nu-protocol = "0.18.0"
-nu-source = "0.18.0"
-nu-errors = "0.18.0"
+nu-plugin = "0.20.0"
+nu-protocol = "0.20.0"
+nu-source = "0.20.0"
+nu-errors = "0.20.0"
 url = "2.1.1"
