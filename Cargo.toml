@@ -1,6 +1,6 @@
 [package]
 name = "nu_plugin_id3"
-version = "0.2.0"
+version = "0.3.0"
 authors = ["notryanb@gmail.com <notryanb@gmail.com>"]
 edition = "2018"
 description = "An id3 reading plugin for Nushell"
@@ -13,8 +13,8 @@ exclude = ["images"]
 [dependencies]
 walkdir = "2"
 id3 = "0.5"
-nu-plugin = "0.20.0"
-nu-protocol = "0.20.0"
-nu-source = "0.20.0"
-nu-errors = "0.20.0"
+nu-plugin = "0.26.0"
+nu-protocol = "0.26.0"
+nu-source = "0.26.0"
+nu-errors = "0.26.0"
 url = "2.1.1"
