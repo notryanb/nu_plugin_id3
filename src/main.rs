@@ -96,7 +96,7 @@ impl Plugin for Id3 {
             .desc("Display Id3 tag information for mp3 files")
             .optional(
                 "path",
-                SyntaxShape::Pattern,
+                SyntaxShape::FilePath,
                 "The path to try and read all id3 tags from",
             )
             .filter())
