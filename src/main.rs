@@ -105,33 +105,25 @@ impl Plugin for Id3 {
     fn begin_filter(&mut self, call_info: CallInfo) -> Result<Vec<ReturnValue>, ShellError> {
         self.tag = call_info.name_tag.clone();
         self.parse_filenames(&call_info)?;
-        dbg!("ending begin filter");
-        Ok(vec![])
-    }
 
-    fn filter(&mut self, _input: Value) -> Result<Vec<ReturnValue>, ShellError> {
         let mut return_successes = vec![];
-        dbg!("In filter");
-        dbg!(&self.filenames.len());
-        dbg!(&self.filenames);
 
         for filename in &self.filenames {
             let rs = ReturnSuccess::value(filename.item().clone());
             let inner_value = rs.unwrap().raw_value();
 
-            dbg!("Inner Value");
-            dbg!(&inner_value);
-
             if let Some(some_filename) = inner_value {
                 let id3 = self.id3(some_filename)?;
                 let value = ReturnSuccess::value(id3);
-                dbg!("Value");
-                dbg!(&value);
                 return_successes.push(value);
             }
         }
 
         Ok(return_successes)
+    }
+
+    fn filter(&mut self, _input: Value) -> Result<Vec<ReturnValue>, ShellError> {
+        Ok(vec![])
     }
 }
 
