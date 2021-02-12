@@ -96,7 +96,7 @@ impl Plugin for Id3 {
             .desc("Display Id3 tag information for mp3 files")
             .optional(
                 "path",
-                SyntaxShape::Pattern,
+                SyntaxShape::GlobPattern,
                 "The path to try and read all id3 tags from",
             )
             .filter())
@@ -106,10 +106,6 @@ impl Plugin for Id3 {
         self.tag = call_info.name_tag.clone();
         self.parse_filenames(&call_info)?;
 
-        Ok(vec![])
-    }
-
-    fn filter(&mut self, _input: Value) -> Result<Vec<ReturnValue>, ShellError> {
         let mut return_successes = vec![];
 
         for filename in &self.filenames {
@@ -124,6 +120,10 @@ impl Plugin for Id3 {
         }
 
         Ok(return_successes)
+    }
+
+    fn filter(&mut self, _input: Value) -> Result<Vec<ReturnValue>, ShellError> {
+        Ok(vec![])
     }
 }
 
